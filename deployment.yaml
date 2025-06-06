@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: web-jenkins
-          image: gasparottoluo/web-jenkins:latest  # Será sobrescrito pelo Jenkins
+          image: gasparottoluo/web-jenkins:latest  
           ports:
             - containerPort: 80
           resources:
