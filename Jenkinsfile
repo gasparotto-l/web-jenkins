@@ -2,10 +2,10 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_REGISTRY = 'gasparottoluo'  // Seu usuário Docker Hub
+        DOCKER_REGISTRY = 'gasparottokuo'
         APP_NAME = 'web-app'
-        KUBE_CONFIG = credentials('rancher-kubeconfig')  // Usando sua credencial
-        DOCKER_CREDS = credentials('docker-creds')  // Usando sua credencial Docker
+        KUBE_CONFIG = credentials('rancher-kubeconfig')
+        DOCKER_CREDS = credentials('docker-creds')
     }
     
     stages {
@@ -18,11 +18,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Login no Docker Hub
-                    sh "echo ${DOCKER_CREDS_PSW} | docker login -u ${DOCKER_CREDS_USR} --password-stdin"
+                    // Login no Docker Hub (Windows)
+                    bat "echo ${DOCKER_CREDS_PSW} | docker login -u ${DOCKER_CREDS_USR} --password-stdin"
                     
-                    // Build da imagem
-                    docker.build("${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}")
+                    // Build da imagem (Windows)
+                    bat "docker build -t ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER} ."
                 }
             }
         }
@@ -30,10 +30,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', 'docker-creds') {
-                        docker.image("${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}").push()
-                        docker.image("${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}").push('latest')
-                    }
+                    // Push da imagem (Windows)
+                    bat "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}"
+                    bat "docker push ${DOCKER_REGISTRY}/${APP_NAME}:latest"
                 }
             }
         }
@@ -41,17 +40,14 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Configura o kubectl com o kubeconfig
-                    withEnv(["KUBECONFIG=${KUBE_CONFIG}"]) {
-                        // Atualiza a imagem no deployment.yaml
-                        sh """
-                            sed -i 's|image:.*|image: ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}|g' deployment.yaml
-                        """
-                        
-                        // Aplica o deployment
-                        sh 'kubectl apply -f deployment.yaml'
-                        sh 'kubectl rollout status deployment/web-app --timeout=2m'
-                    }
+                    // Substituição da imagem (Windows)
+                    bat """
+                        powershell -Command "(Get-Content deployment.yaml) -replace 'image:.*', 'image: ${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}' | Set-Content deployment.yaml"
+                    """
+                    
+                    // Aplica o deployment (Windows)
+                    bat "kubectl apply -f deployment.yaml"
+                    bat "kubectl rollout status deployment/web-app --timeout=2m"
                 }
             }
         }
@@ -64,7 +60,7 @@ pipeline {
         }
         failure {
             echo '❌ Falha na pipeline!'
-            slackSend(color: 'danger', message: "Falha na pipeline: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+            // Removido o slackSend que não está disponível
         }
     }
 }
