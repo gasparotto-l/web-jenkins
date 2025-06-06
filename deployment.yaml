@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-app
+  name: web-jenkins
   labels:
-    app: web-app
+    app: web-jenkins
 spec:
   replicas: 1
   strategy:
@@ -13,15 +13,15 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: web-app
+      app: web-jenkins
   template:
     metadata:
       labels:
-        app: web-app
+        app: web-jenkins
     spec:
       containers:
-      - name: web-app
-        image: gasparottoluo/web-app:latest  # Usando seu registry
+      - name: web-jenkins
+        image: gasparottoluo/web-jenkins:latest  # Usando seu registry
         ports:
         - containerPort: 80
         resources:
@@ -41,11 +41,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-app-service
+  name: web-jenkins-service
 spec:
   type: NodePort
   selector:
-    app: web-app
+    app: web-jenkins
   ports:
     - protocol: TCP
       port: 80

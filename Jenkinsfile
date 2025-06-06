@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         DOCKER_REGISTRY = 'gasparottoluo'
-        APP_NAME = 'web-app'
+        APP_NAME = 'web-jenkins'
         KUBE_CONFIG = credentials('rancher-kubeconfig')
         DOCKER_CREDS = credentials('docker-creds')
     }
