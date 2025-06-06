@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_REGISTRY = 'gasparottokuo'
+        DOCKER_REGISTRY = 'gasparottoluo'
         APP_NAME = 'web-app'
         KUBE_CONFIG = credentials('rancher-kubeconfig')
         DOCKER_CREDS = credentials('docker-creds')
